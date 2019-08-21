@@ -44,6 +44,11 @@
             android:name="com.dji.sdk.API_KEY"
             android:value="4610b9fe4765a9b38b355548" />
 
+        <!-- 启用高德地图服务 -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="02749c8c97f79aeea10a4bcf62362c17" />
+
         <activity
             android:name="dji.sdk.sdkmanager.DJIAoaControllerActivity"
             android:theme="@android:style/Theme.Translucent">
@@ -56,7 +61,8 @@
                 android:resource="@xml/accessory_filter" />
         </activity>
 
-        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"></service>
+        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"> </service>
+        <service android:name="com.amap.api.location.APSService"></service>
         <!-- DJI SDK -->
 
         <activity android:name=".MainActivity"

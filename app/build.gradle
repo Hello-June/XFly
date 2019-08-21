@@ -58,5 +58,7 @@ dependencies {
 // Please uncomment the following code if you use your own sdk version.
     implementation ('com.dji:dji-uxsdk:4.10')
     compileOnly ('com.dji:dji-sdk-provided:4.10')
-
+// Gaode Map integration by Gradle
+    implementation 'com.amap.api:search:latest.integration'
+    implementation 'com.amap.api:location:latest.integration'
 }
