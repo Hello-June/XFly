@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_blue"
-    android:orientation="horizontal"
     tools:context=".MainActivity">
 
     <!-- Widget to see first person view (FPV) -->
@@ -205,5 +204,18 @@
         android:layout_below="@id/signal"
         custom:excludeItem="ESCStatus"
         android:visibility="gone"/>
+
+
+
+    <!-- load GaodeMap -->
+    <Button
+        android:id="@+id/mBtnMapView"
+        android:layout_width="210dp"
+        android:layout_height="120dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:background="#33ff33"
+        android:text="MapView"
+        android:textAllCaps="false" />
 
 </RelativeLayout>

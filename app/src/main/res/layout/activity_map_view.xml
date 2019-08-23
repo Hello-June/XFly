@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
+    <!-- Display Gaode Map -->
+    <com.amap.api.maps2d.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Back to drone UI -->
+    <Button
+        android:id="@+id/mBtnBack"
+        android:layout_width="210dp"
+        android:layout_height="120dp"
+        android:background="#4747d1"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:text="Back"
+        android:textAllCaps="false" />
+
+    <Button
+        android:id="@+id/mBtnLoadFile"
+        android:layout_width="210dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/mBtnBack"
+        android:layout_alignParentRight="true"
+        android:textAllCaps="false"
+        android:text="Load File"/>
+
+</RelativeLayout>

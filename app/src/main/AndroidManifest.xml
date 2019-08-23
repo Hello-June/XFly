@@ -61,14 +61,39 @@
                 android:resource="@xml/accessory_filter" />
         </activity>
 
-        <service android:name="dji.sdk.sdkmanager.DJIGlobalService"> </service>
-        <service android:name="com.amap.api.location.APSService"></service>
-        <!-- DJI SDK -->
+        <!-- DJI SDK Service -->
+        <service android:name="dji.sdk.sdkmanager.DJIGlobalService" />
+        <!-- Gaode Location Service -->
+        <service android:name="com.amap.api.location.APSService" />
 
-        <activity android:name=".MainActivity"
+        <activity
+            android:name=".MainActivity"
             android:screenOrientation="landscape">
+
+            <!-- 默认启动的Activity
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+
+        <activity android:name=".MapViewActivity" />
+
+        <activity
+            android:name=".WaypointActivity"
+            android:label="File Select" />
+
+        <activity
+            android:name=".SplashActivity"
+            android:icon="@mipmap/ic_launcher"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_splash"
+            android:theme="@style/FullscreenTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

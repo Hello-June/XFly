@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">XFly</string>
     <string name="action_settings">Settings</string>
+
+    <string name="title_activity_splash">XFly</string>
+    <string name="mBtnIn">GotEnjoy</string>
+    <string name="dummy_content">X-Fly</string>
 </resources>

@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 // Please comment the following two lines of code if you use your own packagingOptions Configurations.
-apply from : "https://raw.githubusercontent.com/DJI-Mobile-SDK-Tutorials/Android-CommonConfig/master/config_sample_packagingOptions.gradle"
-apply from : "https://raw.githubusercontent.com/DJI-Mobile-SDK-Tutorials/Android-CommonConfig/master/config_sample_dependencies_uxsdk.gradle"
+// apply from : "https://raw.githubusercontent.com/DJI-Mobile-SDK-Tutorials/Android-CommonConfig/master/config_sample_packagingOptions.gradle"
+// apply from : "https://raw.githubusercontent.com/DJI-Mobile-SDK-Tutorials/Android-CommonConfig/master/config_sample_dependencies_uxsdk.gradle"
 
 android {
     compileSdkVersion 27
@@ -30,35 +30,37 @@ android {
     }
 
 // Please uncomment the following code if you use your own packagingOptions Configurations.
-     packagingOptions{
-         doNotStrip "*/*/libdjivideo.so"
-         doNotStrip "*/*/libSDKRelativeJNI.so"
-         doNotStrip "*/*/libFlyForbid.so"
-         doNotStrip "*/*/libduml_vision_bokeh.so"
-         doNotStrip "*/*/libyuv2.so"
-         doNotStrip "*/*/libGroudStation.so"
-         doNotStrip "*/*/libFRCorkscrew.so"
-         doNotStrip "*/*/libUpgradeVerify.so"
-         doNotStrip "*/*/libFR.so"
-         doNotStrip "*/*/libDJIFlySafeCore.so"
-         doNotStrip "*/*/libdjifs_jni.so"
-         doNotStrip "*/*/libsfjni.so"
+    packagingOptions {
+        doNotStrip "*/*/libdjivideo.so"
+        doNotStrip "*/*/libSDKRelativeJNI.so"
+        doNotStrip "*/*/libFlyForbid.so"
+        doNotStrip "*/*/libduml_vision_bokeh.so"
+        doNotStrip "*/*/libyuv2.so"
+        doNotStrip "*/*/libGroudStation.so"
+        doNotStrip "*/*/libFRCorkscrew.so"
+        doNotStrip "*/*/libUpgradeVerify.so"
+        doNotStrip "*/*/libFR.so"
+        doNotStrip "*/*/libDJIFlySafeCore.so"
+        doNotStrip "*/*/libdjifs_jni.so"
+        doNotStrip "*/*/libsfjni.so"
 
-         exclude '/lib/armeabi-v7a/libChineseFontPkg.so'
-         exclude 'META-INF/rxjava.properties'
-     }
+        exclude '/lib/armeabi-v7a/libChineseFontPkg.so'
+        exclude 'META-INF/rxjava.properties'
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    // Please uncomment the following code if you use your own sdk version.
+    implementation 'com.android.support:support-v4:27.+'
+    androidTestImplementation 'com.android.support.test:runner:0.5'
+    compileOnly 'com.dji:dji-sdk-provided:4.10'
     implementation 'com.android.support:appcompat-v7:27.0.0'
-    testImplementation 'junit:junit:4.12'
     implementation 'com.android.support:multidex:1.0.1'
-
-// Please uncomment the following code if you use your own sdk version.
-    implementation ('com.dji:dji-uxsdk:4.10')
-    compileOnly ('com.dji:dji-sdk-provided:4.10')
-// Gaode Map integration by Gradle
-    implementation 'com.amap.api:search:latest.integration'
+    implementation 'com.dji:dji-uxsdk:4.10'
     implementation 'com.amap.api:location:latest.integration'
+    implementation 'com.amap.api:search:latest.integration'
+    implementation 'com.amap.api:map2d:latest.integration'
+    implementation 'com.leon:lfilepickerlibrary:1.8.0'
+    testImplementation 'junit:junit:4.12'
 }
