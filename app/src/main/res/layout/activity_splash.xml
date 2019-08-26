@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#669900"
+    android:background="#739900"
     tools:context="longqing.xfly.SplashActivity">
 
     <!-- The primary full-screen view. This can be replaced with whatever view
@@ -52,6 +52,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:textAllCaps="false"
                 android:text="@string/mBtnIn" />
         </LinearLayout>
     </FrameLayout>

@@ -15,7 +15,7 @@ public class WaypointActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_view);
+        setContentView(R.layout.activity_waypoint);
         showFileSelectDialog();
     }
 
@@ -42,9 +42,13 @@ public class WaypointActivity extends AppCompatActivity {
             List<String> list = data.getStringArrayListExtra("paths");
             // extract first file path from the list
             String filePath = list.get(0).toString();
+            
 
             // Do anything
             Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_LONG).show();
         }
     }
+
+
+    
 }

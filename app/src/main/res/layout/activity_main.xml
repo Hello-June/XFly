@@ -131,6 +131,7 @@
         android:background="@color/transparent"
         android:layout_height="20dp"/>
 
+    <!-- set top left status -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -206,7 +207,6 @@
         android:visibility="gone"/>
 
 
-
     <!-- load GaodeMap -->
     <Button
         android:id="@+id/mBtnMapView"
@@ -214,8 +214,6 @@
         android:layout_height="120dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:background="#33ff33"
-        android:text="MapView"
-        android:textAllCaps="false" />
+        android:background="@drawable/map_button" />
 
 </RelativeLayout>

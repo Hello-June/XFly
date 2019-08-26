@@ -106,6 +106,7 @@ public class SplashActivity extends Activity {
             @Override
             public void run() {
                 startActivity(localIntent);
+                finish();
             }
         };
         timer.schedule(task,3000);
@@ -195,4 +196,10 @@ public class SplashActivity extends Activity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+    }
 }
+

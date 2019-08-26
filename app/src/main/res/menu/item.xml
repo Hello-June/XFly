@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/item_normal"
+        android:title="标准模式" />
+
+    <item
+        android:id="@+id/item_satellite"
+        android:title="卫星模式" />
+
+    <item
+        android:id="@+id/item_start_fly"
+        android:title="开始飞行" />
+
+    <item
+        android:id="@+id/item_stop_fly"
+        android:title="停止飞行" />
+
+    <item
+        android:id="@+id/item_re_fly"
+        android:title="重新飞行"/>
+
+    <item
+        android:id="@+id/item_recover_fly"
+        android:title="恢复飞行"/>
+
+</menu>

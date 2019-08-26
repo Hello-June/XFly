@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,24 +13,124 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <!-- Widgets in top status bar -->
+    <LinearLayout
+        android:id="@+id/signal"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"
+        android:background="@color/dark_gray"
+        android:orientation="horizontal">
+
+        <dji.ux.widget.PreFlightStatusWidget
+            android:layout_width="238dp"
+            android:layout_height="25dp"/>
+
+        <dji.ux.widget.FlightModeWidget
+            android:layout_width="103dp"
+            android:layout_height="22dp"/>
+
+        <dji.ux.widget.GPSSignalWidget
+            android:layout_width="44dp"
+            android:layout_height="22dp"/>
+
+        <dji.ux.widget.VisionWidget
+            android:layout_width="22dp"
+            android:layout_height="22dp"/>
+
+        <dji.ux.widget.RemoteControlSignalWidget
+            android:layout_width="38dp"
+            android:layout_height="22dp"/>
+
+        <dji.ux.widget.VideoSignalWidget
+            android:layout_width="38dp"
+            android:layout_height="22dp"/>
+
+        <dji.ux.widget.WiFiSignalWidget
+            android:layout_width="22dp"
+            android:layout_height="20dp"/>
+
+        <dji.ux.widget.BatteryWidget
+            android:layout_width="96dp"
+            android:layout_height="22dp"
+            custom:excludeView="singleVoltage"/>
+
+        <dji.ux.widget.ConnectionWidget
+            android:layout_marginTop="3dp"
+            android:layout_width="18dp"
+            android:layout_height="18dp"/>
+    </LinearLayout>
+
+
     <!-- Back to drone UI -->
     <Button
         android:id="@+id/mBtnBack"
-        android:layout_width="210dp"
-        android:layout_height="120dp"
-        android:background="#4747d1"
-        android:layout_alignParentTop="true"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:textSize="12sp"
+        android:textColor="#ff8080"
+        android:background="@drawable/back_button"
+        android:gravity="bottom|center"
+        android:layout_marginTop="25dp"
+        android:layout_marginBottom="120dp"
+        android:layout_marginRight="8dp"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:text="Back"
+        android:text="返回"
         android:textAllCaps="false" />
 
-    <Button
-        android:id="@+id/mBtnLoadFile"
-        android:layout_width="210dp"
-        android:layout_height="50dp"
-        android:layout_below="@+id/mBtnBack"
-        android:layout_alignParentRight="true"
-        android:textAllCaps="false"
-        android:text="Load File"/>
+    <!-- Buttons on left -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <Button
+            android:id="@+id/mBtnMapPattern"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="25dp"
+            android:text="模式" />
+
+        <Button
+            android:id="@+id/mBtnLoadFile"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_below="@+id/mBtnMapPattern"
+            android:text="文件"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/mBtnFly"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="0dp"
+            android:layout_below="@+id/mBtnLoadFile"
+            android:text="飞行" />
+
+        <!--Reserved other Button for add in -->
+        <Button
+            android:id="@+id/mBtnOther"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_marginTop="0dp"
+            android:layout_below="@+id/mBtnFly"
+            android:text="其他"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:padding="12dp">
+
+        <dji.ux.widget.dashboard.DashboardWidget
+            android:id="@+id/Compass"
+            android:layout_width="405dp"
+            android:layout_height="91dp"
+            android:layout_marginRight="12dp"
+            tools:ignore="RtlHardcoded"/>
+
+    </LinearLayout>
+
 
 </RelativeLayout>
