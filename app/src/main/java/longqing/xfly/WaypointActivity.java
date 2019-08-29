@@ -3,19 +3,37 @@ package longqing.xfly;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.LineNumberReader;
+import java.util.ArrayList;
 import java.util.List;
 
+import dji.common.mission.waypoint.Waypoint;
+import dji.common.mission.waypoint.WaypointMission;
 
 
 public class WaypointActivity extends AppCompatActivity {
 
+    protected static final String TAG = "WaypointActivity";
     int REQUESTCODE_FROM_ACTIVITY = 1000;
+    private List<Waypoint> waypointList = new ArrayList<>();
+
+    public static WaypointMission.Builder waypointMissionBuilder;
+
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,11 +66,77 @@ public class WaypointActivity extends AppCompatActivity {
             String filePath = list.get(0);
             // Do anything
             Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_LONG).show();
-
-            
+            readWaypointFile(filePath);
         }
     }
 
+    private void readWaypointFile(String filePath) {
+
+        /*It is necessary to check the file status before config mission with file.
+        A file should not be null or has wrong format.*/
+
+        int cnt = getFileLineCount(filePath); // cnt used to define the length of arrays
+        int line_num = 0;
+        if (cnt > 0) {
+            line_num = cnt;
+        }else {
+            setResultToToast("Something wrong with input file, pls check it.");
+            return;
+        }
+        double[] latitude = new double[line_num];
+        double[] longitude = new double[line_num];
+        float[] height = new float[line_num];
+        File file = new File(filePath);
+        if (file.isDirectory()) {
+            setResultToToast("Type Error: this is not a file!");
+        } else {
+            try {
+                InputStream inputStream = new FileInputStream(file);
+                if (null != inputStream) {
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                    String strLine;
+                    int i = 0;
+                    while ((strLine = bufferedReader.readLine()) != null) {
+                        String[] tokens = strLine.split(","); // Split string by comma, and the let the result assigned to tokens
+                        latitude[i] = Double.parseDouble(tokens[0]);
+                        longitude[i] = Double.parseDouble(tokens[1]);
+                        height[i] = Float.parseFloat(tokens[2]);
+                        i = i + 1;
+                    }
+                    setResultToToast("Load file succeed!");
+                }
+            } catch (java.io.FileNotFoundException e) {
+                Log.d(TAG, "The File does not exist.");
+            } catch (IOException e) {
+                Log.d(TAG, e.getMessage());
+            }
+        }
+
+
+        // add waypoint mission
+            if (latitude.length == longitude.length && latitude.length == height.length) {
+                for (int i = 0; i < latitude.length; i++) {
+
+                    Waypoint mWaypoint = new Waypoint(latitude[i], longitude[i], height[i]);
+
+                    //Add Waypoints to Waypoint arraylist;
+                    if (waypointMissionBuilder != null) {
+                        waypointList.add(mWaypoint);
+                        waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
+                    } else {
+                        waypointMissionBuilder = new WaypointMission.Builder();
+                        waypointList.add(mWaypoint);
+                        waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
+                    }
+                }
+                setResultToToast("Config success!");
+            } else {
+                Toast.makeText(getApplicationContext(), "The lat, lon or height may have different length", Toast.LENGTH_LONG).show();
+
+            }
+
+    }
     /**
      * To obtain file line counts
      * @param filePath :file path
@@ -81,4 +165,19 @@ public class WaypointActivity extends AppCompatActivity {
         }
         return cnt;
     }
+
+    /**
+     *
+     * @param string string to be printed
+     */
+    private void setResultToToast(final String string) {
+        WaypointActivity.this.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(WaypointActivity.this, string, Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
 }
