@@ -43,7 +43,7 @@
 
         <meta-data
             android:name="com.dji.sdk.API_KEY"
-            android:value="4610b9fe4765a9b38b355548" />
+            android:value="" />
 
         <!-- 启用高德地图服务 -->
         <meta-data
