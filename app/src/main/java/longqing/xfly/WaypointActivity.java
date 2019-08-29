@@ -7,7 +7,11 @@ import android.widget.Toast;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 
+import java.io.FileReader;
+import java.io.LineNumberReader;
 import java.util.List;
+
+
 
 public class WaypointActivity extends AppCompatActivity {
 
@@ -38,17 +42,42 @@ public class WaypointActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUESTCODE_FROM_ACTIVITY) {
 
-            //如果是文件选择模式，需要获取选择的所有文件的路径集合
+            // 如果是文件选择模式，需要获取选择的所有文件的路径集合
             List<String> list = data.getStringArrayListExtra("paths");
             // extract first file path from the list
-            String filePath = list.get(0).toString();
-            
-
+            String filePath = list.get(0);
             // Do anything
             Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_LONG).show();
+
         }
     }
 
+    /**
+     * To obtain file line counts
+     * @param filePath :file path
+     * @return cnt
+     */
+    public static int getFileLineCount(String filePath) {
 
-    
+        int cnt = 0;
+        LineNumberReader reader = null;
+        try {
+            reader = new LineNumberReader(new FileReader(filePath));
+            String lineRead = "";
+            while ((lineRead = reader.readLine()) != null) {
+            }
+            cnt = reader.getLineNumber();
+        } catch (Exception e) {
+            cnt = -1;
+            e.printStackTrace();
+        } finally {
+            try {
+                assert reader != null;
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return cnt;
+    }
 }

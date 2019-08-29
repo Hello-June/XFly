@@ -108,8 +108,10 @@ public class MapViewActivity extends AppCompatActivity  {
                     break;
                 }
                 case R.id.mBtnOther:{
-                    // for reserved operation
-                    Toast.makeText(MapViewActivity.this, "其他", Toast.LENGTH_SHORT).show();
+                    // for reserved operation, here we used to test function of button.
+                    Intent intent = new Intent(MapViewActivity.this,WaypointActivity.class);
+                    startActivity(intent);
+                    finish();
                     break;
                 }
                 default: {
@@ -259,6 +261,7 @@ public class MapViewActivity extends AppCompatActivity  {
         aMap.setMapLanguage(AMap.CHINESE); // 设置地图语言为中文
         aMap.moveCamera(CameraUpdateFactory.zoomTo(17));
     }
+
     private void setNormalMap() {
         if (aMap != null) {
             aMap.setMapType(AMap.MAP_TYPE_NORMAL);
@@ -287,16 +290,19 @@ public class MapViewActivity extends AppCompatActivity  {
         super.onResume();
         mMapView.onResume();
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mMapView.onDestroy();
     }
+
     @Override
     protected void onPause(){
         super.onPause();
         mMapView.onPause();
     }
+
     @Override
     protected void onSaveInstanceState(Bundle outState){
         super.onSaveInstanceState(outState);
@@ -310,6 +316,7 @@ public class MapViewActivity extends AppCompatActivity  {
     public void onBackPressed(){
         exit();
     }
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
@@ -320,6 +327,7 @@ public class MapViewActivity extends AppCompatActivity  {
             return super.onKeyDown(keyCode, event);
         }
     }
+
     private void exit() {
         if ((System.currentTimeMillis() - clickTime) > 2000){
             Toast.makeText(getApplicationContext(), "再按一次退出应用",
