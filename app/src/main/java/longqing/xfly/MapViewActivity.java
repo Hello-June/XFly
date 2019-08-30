@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.MenuItem;
 
 import android.view.KeyEvent;
@@ -30,14 +31,23 @@ import com.google.gson.JsonParser;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.Reader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
+
+import dji.common.mission.waypoint.Waypoint;
+import dji.common.mission.waypoint.WaypointMission;
+
+import static longqing.xfly.WaypointActivity.waypointMissionBuilder;
 
 
 /**
@@ -53,10 +63,12 @@ public class MapViewActivity extends AppCompatActivity  {
 
     private MapView mMapView ;
     private AMap aMap;
-    // private LocationSource.OnLocationChangedListener mListener;
-    // private AMapLocationClient mLocationClient;
-    // private AMapLocationClientOption mLocationClientOption;
+    private LocationSource.OnLocationChangedListener mListener;
+    private AMapLocationClient mLocationClient;
+    private AMapLocationClientOption mLocationClientOption;
     private MyLocationStyle myLocationStyle;
+
+    List<Waypoint> waypointList = new ArrayList<>();
 
     int REQUESTCODE_FROM_ACTIVITY = 1000;
 
@@ -242,23 +254,24 @@ public class MapViewActivity extends AppCompatActivity  {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUESTCODE_FROM_ACTIVITY) {
 
-            //如果是文件选择模式，需要获取选择的所有文件的路径集合
+            // if file selected mode, return the list of files selected
             List<String> list = data.getStringArrayListExtra("paths");
             // extract first file path from the list
-            String filePath = list.get(0).toString();
+            String filePath = list.get(0); // obtained the path selected
 
             // Do anything
-            Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_SHORT).show();
 
             JsonArray jsonArray = parseNoHeaderJArray(filePath);
             Gson gson = new Gson();
             ArrayList<TubanBean> beanList = new ArrayList<>();
-            //加强for循环遍历JsonArray
+            // for loop-searching JsonArray
             for (JsonElement bean : jsonArray){
                 TubanBean beanTemp = gson.fromJson(bean, TubanBean.class);
                 beanList.add(beanTemp);
             }
-            setResultToToast(beanList.get(1).XMC);// 测试JSON解析是否成功
+            // 测试JSON解析是否成功
+            setResultToToast(beanList.get(beanList.size()-1).ID);
         }
     }
 
@@ -559,6 +572,108 @@ public class MapViewActivity extends AppCompatActivity  {
                 Toast.makeText(MapViewActivity.this, string, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    /**
+     * config waypoint mission
+     * @param latitude, double[]
+     * @param longitude, double[]
+     * @param height, float[]
+     */
+    private void configMission(double[] latitude,double[] longitude,float[] height) {
+
+        /*It is necessary to check the file status before config mission with file.
+        A file should not be null or has wrong format.*/
+
+        // add waypoint mission
+        if (latitude.length == longitude.length && latitude.length == height.length) {
+            for (int i = 0; i < latitude.length; i++) {
+
+                Waypoint mWaypoint = new Waypoint(latitude[i], longitude[i], height[i]);
+
+                // Add Waypoints to Waypoint Arraylist;
+                if (waypointMissionBuilder != null) {
+                    waypointList.add(mWaypoint);
+                    waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
+                } else {
+                    waypointMissionBuilder = new WaypointMission.Builder();
+                    waypointList.add(mWaypoint);
+                    waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
+                }
+            }
+            setResultToToast("Config success!");
+        } else {
+            setResultToToast("The lat, lon or height may have different length");
+        }
+
+    }
+
+    public Object[] readConfigfile(String filePath){
+
+        int cnt = getFileLineCount(filePath); // cnt used to define the length of arrays
+        int line_num = 0;
+        if (cnt > 0) {
+            line_num = cnt;
+        }else {
+            setResultToToast("Something wrong with input file, pls check it.");
+            return null;
+        }
+        double[] latitude = new double[line_num];
+        double[] longitude = new double[line_num];
+        float[] height = new float[line_num];
+
+        File file = new File(filePath);
+        if (file.isDirectory()) {
+            setResultToToast("Type Error: this is not a file!");
+        } else {
+            try {
+                InputStream inputStream = new FileInputStream(file);
+                if (null != inputStream) {
+                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                    String strLine;
+                    int i = 0;
+                    while ((strLine = bufferedReader.readLine()) != null) {
+                        String[] tokens = strLine.split(","); // Split string by comma, and the let the result assigned to tokens
+                        latitude[i] = Double.parseDouble(tokens[0]);
+                        longitude[i] = Double.parseDouble(tokens[1]);
+                        height[i] = Float.parseFloat(tokens[2]);
+                        i = i + 1;
+                    }
+                    setResultToToast("Load file succeed!");
+                    return new Object[]{latitude, longitude, height};
+                }
+            } catch (java.io.FileNotFoundException e) {
+                setResultToToast("No such file!");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return null;
+    }
+
+    public static int getFileLineCount(String filePath) {
+
+        int cnt = 0;
+        LineNumberReader reader = null;
+        try {
+            reader = new LineNumberReader(new FileReader(filePath));
+            String lineRead = "";
+            while ((lineRead = reader.readLine()) != null) {
+            }
+            cnt = reader.getLineNumber();
+        } catch (Exception e) {
+            cnt = -1;
+            e.printStackTrace();
+        } finally {
+            try {
+                assert reader != null;
+                reader.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return cnt;
     }
 
     // Map related
