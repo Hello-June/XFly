@@ -506,7 +506,7 @@ public class MapViewActivity extends AppCompatActivity  {
     }
 
     /**
-     * 解析Json 数组
+     * 解析Json 数组,返回JSON字符串
      */
     private JsonArray parseNoHeaderJArray(String fileName) {
 
