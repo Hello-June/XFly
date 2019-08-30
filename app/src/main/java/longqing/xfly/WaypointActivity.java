@@ -5,8 +5,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+import android.widget.TextView;
+
+import com.alibaba.fastjson.JSONObject;
+
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
+
+import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -28,16 +34,17 @@ public class WaypointActivity extends AppCompatActivity {
     protected static final String TAG = "WaypointActivity";
     int REQUESTCODE_FROM_ACTIVITY = 1000;
     private List<Waypoint> waypointList = new ArrayList<>();
+    private TextView jsonTv;
 
     public static WaypointMission.Builder waypointMissionBuilder;
-
-
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_waypoint);
+
+        this.jsonTv = (TextView) findViewById(R.id.jsonTv);
         showFileSelectDialog();
     }
 
@@ -63,10 +70,24 @@ public class WaypointActivity extends AppCompatActivity {
             // 如果是文件选择模式，需要获取选择的所有文件的路径集合
             List<String> list = data.getStringArrayListExtra("paths");
             // extract first file path from the list
-            String filePath = list.get(0);
+            String fileName = list.get(0);
             // Do anything
-            Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_LONG).show();
-            readWaypointFile(filePath);
+            Toast.makeText(getApplicationContext(), "选中的文件为：" + fileName, Toast.LENGTH_LONG).show();
+
+            // 读取文件
+            String input = null;
+            try {
+                input = FileUtils.readFileToString(new File(fileName), "UTF-8");
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            // 将读取的数据转换为JSONObject
+            JSONObject jsonObj = JSONObject.parseObject(input);
+
+            // 显示json对象
+            jsonTv.setText("name:"+jsonObj.getString("name") + ",age:"+jsonObj.getIntValue("age"));
+
+           // readWaypointFile(filePath);
         }
     }
 
@@ -107,7 +128,7 @@ public class WaypointActivity extends AppCompatActivity {
                     setResultToToast("Load file succeed!");
                 }
             } catch (java.io.FileNotFoundException e) {
-                Log.d(TAG, "The File does not exist.");
+                Log.d(TAG, "The file does not exist.");
             } catch (IOException e) {
                 Log.d(TAG, e.getMessage());
             }
@@ -120,7 +141,7 @@ public class WaypointActivity extends AppCompatActivity {
 
                     Waypoint mWaypoint = new Waypoint(latitude[i], longitude[i], height[i]);
 
-                    //Add Waypoints to Waypoint arraylist;
+                    // Add Waypoints to Waypoint Arraylist;
                     if (waypointMissionBuilder != null) {
                         waypointList.add(mWaypoint);
                         waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
@@ -137,6 +158,7 @@ public class WaypointActivity extends AppCompatActivity {
             }
 
     }
+
     /**
      * To obtain file line counts
      * @param filePath :file path
@@ -177,7 +199,7 @@ public class WaypointActivity extends AppCompatActivity {
                 Toast.makeText(WaypointActivity.this, string, Toast.LENGTH_SHORT).show();
             }
         });
-
     }
+
 
 }
