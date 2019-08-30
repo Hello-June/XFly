@@ -62,7 +62,7 @@ dependencies {
     implementation 'com.amap.api:search:latest.integration'
     implementation 'com.amap.api:map2d:latest.integration'
     implementation 'com.leon:lfilepickerlibrary:1.8.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
     testImplementation 'junit:junit:4.12'
-    compile files('D:/AndroidStudioProjects/Myself/XFly/libs/commons-io-2.6.jar')
-    compile files('D:/AndroidStudioProjects/Myself/XFly/libs/fastjson-1.2.59.jar')
+
 }

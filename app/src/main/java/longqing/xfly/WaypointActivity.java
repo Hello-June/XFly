@@ -3,25 +3,23 @@ package longqing.xfly;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 import android.widget.TextView;
 
-import com.alibaba.fastjson.JSONObject;
-
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.leon.lfilepickerlibrary.LFilePicker;
 import com.leon.lfilepickerlibrary.utils.Constant;
-
-import org.apache.commons.io.FileUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.LineNumberReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,7 +32,7 @@ public class WaypointActivity extends AppCompatActivity {
     protected static final String TAG = "WaypointActivity";
     int REQUESTCODE_FROM_ACTIVITY = 1000;
     private List<Waypoint> waypointList = new ArrayList<>();
-    private TextView jsonTv;
+    private List<String> jsonList = new ArrayList<>();
 
     public static WaypointMission.Builder waypointMissionBuilder;
 
@@ -42,9 +40,8 @@ public class WaypointActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_waypoint);
+        // setContentView(R.layout.activity_waypoint);
 
-        this.jsonTv = (TextView) findViewById(R.id.jsonTv);
         showFileSelectDialog();
     }
 
@@ -59,10 +56,15 @@ public class WaypointActivity extends AppCompatActivity {
                 .withMaxNum(1) // 设置只能选取一个文件
                 .withChooseMode(true) // 选择文件(默认)模式 (false 为选择文件夹)
                 .withFileSize(10240 * 1024)//指定文件大小为10M
-                // .withFileFilter(new String[]{".txt", ".llh"}) // 过滤文件格式
+                .withFileFilter(new String[]{".txt", ".JSON"}) // 过滤文件格式
                 .start();
     }
 
+    /**
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == REQUESTCODE_FROM_ACTIVITY) {
@@ -74,122 +76,339 @@ public class WaypointActivity extends AppCompatActivity {
             // Do anything
             Toast.makeText(getApplicationContext(), "选中的文件为：" + fileName, Toast.LENGTH_LONG).show();
 
-            // 读取文件
-            String input = null;
-            try {
-                input = FileUtils.readFileToString(new File(fileName), "UTF-8");
-            } catch (IOException e) {
-                e.printStackTrace();
+            JsonArray jsonArray = parseNoHeaderJArray(fileName);
+            Gson gson = new Gson();
+            ArrayList<TbBean> beanList = new ArrayList<>();
+
+            //加强for循环遍历JsonArray
+            for (JsonElement bean : jsonArray){
+                TbBean beanTemp = gson.fromJson(bean, TbBean.class);
+                beanList.add(beanTemp);
             }
-            // 将读取的数据转换为JSONObject
-            JSONObject jsonObj = JSONObject.parseObject(input);
-
-            // 显示json对象
-            jsonTv.setText("name:"+jsonObj.getString("name") + ",age:"+jsonObj.getIntValue("age"));
-
-           // readWaypointFile(filePath);
+            setResultToToast(beanList.get(1).XMC);// 测试JSON解析是否成功
+            returnWaypoint();
         }
-    }
-
-    private void readWaypointFile(String filePath) {
-
-        /*It is necessary to check the file status before config mission with file.
-        A file should not be null or has wrong format.*/
-
-        int cnt = getFileLineCount(filePath); // cnt used to define the length of arrays
-        int line_num = 0;
-        if (cnt > 0) {
-            line_num = cnt;
-        }else {
-            setResultToToast("Something wrong with input file, pls check it.");
-            return;
-        }
-        double[] latitude = new double[line_num];
-        double[] longitude = new double[line_num];
-        float[] height = new float[line_num];
-        File file = new File(filePath);
-        if (file.isDirectory()) {
-            setResultToToast("Type Error: this is not a file!");
-        } else {
-            try {
-                InputStream inputStream = new FileInputStream(file);
-                if (null != inputStream) {
-                    InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-                    BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
-                    String strLine;
-                    int i = 0;
-                    while ((strLine = bufferedReader.readLine()) != null) {
-                        String[] tokens = strLine.split(","); // Split string by comma, and the let the result assigned to tokens
-                        latitude[i] = Double.parseDouble(tokens[0]);
-                        longitude[i] = Double.parseDouble(tokens[1]);
-                        height[i] = Float.parseFloat(tokens[2]);
-                        i = i + 1;
-                    }
-                    setResultToToast("Load file succeed!");
-                }
-            } catch (java.io.FileNotFoundException e) {
-                Log.d(TAG, "The file does not exist.");
-            } catch (IOException e) {
-                Log.d(TAG, e.getMessage());
-            }
-        }
-
-
-        // add waypoint mission
-            if (latitude.length == longitude.length && latitude.length == height.length) {
-                for (int i = 0; i < latitude.length; i++) {
-
-                    Waypoint mWaypoint = new Waypoint(latitude[i], longitude[i], height[i]);
-
-                    // Add Waypoints to Waypoint Arraylist;
-                    if (waypointMissionBuilder != null) {
-                        waypointList.add(mWaypoint);
-                        waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
-                    } else {
-                        waypointMissionBuilder = new WaypointMission.Builder();
-                        waypointList.add(mWaypoint);
-                        waypointMissionBuilder.waypointList(waypointList).waypointCount(waypointList.size());
-                    }
-                }
-                setResultToToast("Config success!");
-            } else {
-                Toast.makeText(getApplicationContext(), "The lat, lon or height may have different length", Toast.LENGTH_LONG).show();
-
-            }
-
     }
 
     /**
-     * To obtain file line counts
-     * @param filePath :file path
-     * @return cnt
+     * setting Bean according json file
      */
-    public static int getFileLineCount(String filePath) {
+    private class TbBean {
 
-        int cnt = 0;
-        LineNumberReader reader = null;
-        try {
-            reader = new LineNumberReader(new FileReader(filePath));
-            String lineRead = "";
-            while ((lineRead = reader.readLine()) != null) {
-            }
-            cnt = reader.getLineNumber();
-        } catch (Exception e) {
-            cnt = -1;
-            e.printStackTrace();
-        } finally {
-            try {
-                assert reader != null;
-                reader.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+        // 字段必须和json文件一致
+        private boolean Check;
+        private String ID;
+        private String TBYBH;
+        private String XZQDM;
+        private String XMC;
+        private String TBMJ;
+        private String XZB;
+        private String YZB;
+        private String XZBF;
+        private String YZBF;
+        private String QSDWMC;
+        private String QSXZ;
+        private String DLBM;
+        private String YPDL;
+        private String NYBZ;
+        private String PZD;
+        private String DLYZX;
+        private String WYRDDL;
+        private String SFJZ;
+        private String SFXZ;
+        private String WJZLX;
+        private String JZSM;
+        private String BZ;
+        private String JZRY;
+
+        private String TBFW;
+        private String TBFWF;
+
+        public boolean isCheck() {
+            return Check;
         }
-        return cnt;
+
+        public void setCheck(boolean check) {
+            Check = check;
+        }
+
+        public String getID() {
+            return ID;
+        }
+
+        public void setID(String ID) {
+            this.ID = ID;
+        }
+
+        public String getTBYBH() {
+            return TBYBH;
+        }
+
+        public void setTBYBH(String TBYBH) {
+            this.TBYBH = TBYBH;
+        }
+
+        public String getXZQDM() {
+            return XZQDM;
+        }
+
+        public void setXZQDM(String XZQDM) {
+            this.XZQDM = XZQDM;
+        }
+
+        public String getXMC() {
+            return XMC;
+        }
+
+        public void setXMC(String XMC) {
+            this.XMC = XMC;
+        }
+
+        public String getTBMJ() {
+            return TBMJ;
+        }
+
+        public void setTBMJ(String TBMJ) {
+            this.TBMJ = TBMJ;
+        }
+
+        public String getXZB() {
+            return XZB;
+        }
+
+        public void setXZB(String XZB) {
+            this.XZB = XZB;
+        }
+
+        public String getYZB() {
+            return YZB;
+        }
+
+        public void setYZB(String YZB) {
+            this.YZB = YZB;
+        }
+
+        public String getXZBF() {
+            return XZBF;
+        }
+
+        public void setXZBF(String XZBF) {
+            this.XZBF = XZBF;
+        }
+
+        public String getYZBF() {
+            return YZBF;
+        }
+
+        public void setYZBF(String YZBF) {
+            this.YZBF = YZBF;
+        }
+
+        public String getQSDWMC() {
+            return QSDWMC;
+        }
+
+        public void setQSDWMC(String QSDWMC) {
+            this.QSDWMC = QSDWMC;
+        }
+
+        public String getQSXZ() {
+            return QSXZ;
+        }
+
+        public void setQSXZ(String QSXZ) {
+            this.QSXZ = QSXZ;
+        }
+
+        public String getDLBM() {
+            return DLBM;
+        }
+
+        public void setDLBM(String DLBM) {
+            this.DLBM = DLBM;
+        }
+
+        public String getYPDL() {
+            return YPDL;
+        }
+
+        public void setYPDL(String YPDL) {
+            this.YPDL = YPDL;
+        }
+
+        public String getNYBZ() {
+            return NYBZ;
+        }
+
+        public void setNYBZ(String NYBZ) {
+            this.NYBZ = NYBZ;
+        }
+
+        public String getPZD() {
+            return PZD;
+        }
+
+        public void setPZD(String PZD) {
+            this.PZD = PZD;
+        }
+
+        public String getDLYZX() {
+            return DLYZX;
+        }
+
+        public void setDLYZX(String DLYZX) {
+            this.DLYZX = DLYZX;
+        }
+
+        public String getWYRDDL() {
+            return WYRDDL;
+        }
+
+        public void setWYRDDL(String WYRDDL) {
+            this.WYRDDL = WYRDDL;
+        }
+
+        public String getSFJZ() {
+            return SFJZ;
+        }
+
+        public void setSFJZ(String SFJZ) {
+            this.SFJZ = SFJZ;
+        }
+
+        public String getSFXZ() {
+            return SFXZ;
+        }
+
+        public void setSFXZ(String SFXZ) {
+            this.SFXZ = SFXZ;
+        }
+
+        public String getWJZLX() {
+            return WJZLX;
+        }
+
+        public void setWJZLX(String WJZLX) {
+            this.WJZLX = WJZLX;
+        }
+
+        public String getJZSM() {
+            return JZSM;
+        }
+
+        public void setJZSM(String JZSM) {
+            this.JZSM = JZSM;
+        }
+
+        public String getBZ() {
+            return BZ;
+        }
+
+        public void setBZ(String BZ) {
+            this.BZ = BZ;
+        }
+
+        public String getJZRY() {
+            return JZRY;
+        }
+
+        public void setJZRY(String JZRY) {
+            this.JZRY = JZRY;
+        }
+
+        public String getTBFW() {
+            return TBFW;
+        }
+
+        public void setTBFW(String TBFW) {
+            this.TBFW = TBFW;
+        }
+
+        public String getTBFWF() {
+            return TBFWF;
+        }
+
+        public void setTBFWF(String TBFWF) {
+            this.TBFWF = TBFWF;
+        }
     }
 
     /**
-     *
+     * 解析Json 数组
+     */
+    private JsonArray parseNoHeaderJArray(String fileName) {
+
+        //读取JSON文件 并转成String
+        String strByJson = readJsonFile(fileName);
+        //Json的解析类对象
+        JsonParser jsonParser = new JsonParser();
+        //将JSON的String 转成一个JsonArray对象，并返回
+        return jsonParser.parse(strByJson).getAsJsonArray();
+
+        // JsonArray jsonArray = parser.parse(strByJson).getAsJsonArray();
+        // return jsonArray;
+    }
+
+    /**
+     * 读取json文件，返回json字符串
+     * @param fileName filepath
+     * @return String
+     */
+    private String readJsonFile(String fileName) {
+
+        String jsonStr = "";
+        try {
+            FileReader fileReader = new FileReader(fileName);
+            Reader reader = new InputStreamReader(new FileInputStream(fileName),"utf-8");
+            int ch = 0;
+            StringBuffer sb = new StringBuffer();
+            while ((ch = reader.read()) != -1) {
+                sb.append((char) ch);
+            }
+            fileReader.close();
+            reader.close();
+            jsonStr = sb.toString();
+            return jsonStr;
+        } catch (IOException e) {
+            e.printStackTrace();
+            setResultToToast("readJsonFile：解析失败！");
+            return null;
+        }
+    }
+
+    /**
+     * 从sd卡获取文件内容，和readJsonFile类似
+     * @param filePath, 文件路径
+     * @return String, 文件内容字符串
+     */
+    private String getFileFromSD(String filePath) {
+        String result = "";
+
+        try {
+            FileInputStream f = new FileInputStream(filePath);
+            BufferedReader bis = new BufferedReader(new InputStreamReader(f));
+            String line = "";
+            while ((line = bis.readLine()) != null) {
+                result += line;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+
+    }
+
+    /**
+     * return MapViewActivity
+     */
+    private void returnWaypoint(){
+        Intent intent = new Intent(WaypointActivity.this,MapViewActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    /**
+     *弹出提示
      * @param string string to be printed
      */
     private void setResultToToast(final String string) {
@@ -200,6 +419,4 @@ public class WaypointActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
