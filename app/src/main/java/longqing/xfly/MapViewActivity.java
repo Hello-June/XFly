@@ -270,7 +270,7 @@ public class MapViewActivity extends AppCompatActivity  {
                 TubanBean beanTemp = gson.fromJson(bean, TubanBean.class);
                 beanList.add(beanTemp);
             }
-            // 测试JSON解析是否成功
+            // To test whether JSON parsing is successful
             setResultToToast(beanList.get(beanList.size()-1).ID);
         }
     }
