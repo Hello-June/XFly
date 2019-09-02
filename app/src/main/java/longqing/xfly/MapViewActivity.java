@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.menu.MenuPopupHelper;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 
 import android.view.KeyEvent;
@@ -235,6 +234,7 @@ public class MapViewActivity extends AppCompatActivity  {
         });
     }
 
+    // To open file selector dialog
     private void showFileSelectDialog() {
         new LFilePicker()
                 .withActivity(MapViewActivity.this) //绑定Activity
@@ -259,21 +259,37 @@ public class MapViewActivity extends AppCompatActivity  {
             // extract first file path from the list
             String filePath = list.get(0); // obtained the path selected
 
-            // Do anything
+            // Do anything since we have obtained path of file.
             Toast.makeText(getApplicationContext(), "选中的文件为：" + filePath, Toast.LENGTH_SHORT).show();
 
             JsonArray jsonArray = parseNoHeaderJArray(filePath);
             Gson gson = new Gson();
             ArrayList<TubanBean> beanList = new ArrayList<>();
-            // for loop-searching JsonArray
+            // loop JsonArray to initial beanList
             for (JsonElement bean : jsonArray){
                 TubanBean beanTemp = gson.fromJson(bean, TubanBean.class);
                 beanList.add(beanTemp);
             }
+
             // To test whether JSON parsing is successful
             setResultToToast(beanList.get(beanList.size()-1).ID);
+
+            // initial latitude,longitude and height
+            double [] latitude = new double[beanList.size()];
+            double [] longitude = new double[beanList.size()];
+            float [] height = new float[beanList.size()];
+
+            for (int i=0;i<=beanList.size();i++){
+                latitude[i] = Double.valueOf(beanList.get(i).XZB);
+                longitude[i] = Double.valueOf(beanList.get(i).YZB);
+                height[i] = 100;
+            }
+
+            // config mission
+            configMission(latitude,longitude,height);
         }
     }
+
 
     /**
      * setting Bean according json file
@@ -574,6 +590,7 @@ public class MapViewActivity extends AppCompatActivity  {
         });
     }
 
+
     /**
      * config waypoint mission
      * @param latitude, double[]
@@ -675,6 +692,7 @@ public class MapViewActivity extends AppCompatActivity  {
         }
         return cnt;
     }
+
 
     // Map related
     private void initMap() {
